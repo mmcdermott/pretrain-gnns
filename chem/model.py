@@ -1,4 +1,5 @@
 import torch
+from torch_geometric import __version__ as _TORCH_GEOMETRIC_VERSION
 from torch_geometric.nn import MessagePassing
 from torch_geometric.utils import add_self_loops, degree, softmax
 from torch_geometric.nn import global_add_pool, global_mean_pool, global_max_pool, GlobalAttention, Set2Set
@@ -46,7 +47,11 @@ class GINConv(MessagePassing):
 
         edge_embeddings = self.edge_embedding1(edge_attr[:,0]) + self.edge_embedding2(edge_attr[:,1])
 
-        return self.propagate(self.aggr, edge_index, x=x, edge_attr=edge_embeddings)
+        if _TORCH_GEOMETRIC_VERSION == '1.0.3':
+            return self.propagate(self.aggr, edge_index, x=x, edge_attr=edge_embeddings)
+        else:
+            # assume bigger version
+            return self.propagate(edge_index[0], x=x, edge_attr=edge_embeddings)
 
     def message(self, x_j, edge_attr):
         return x_j + edge_attr
@@ -98,7 +103,11 @@ class GCNConv(MessagePassing):
 
         x = self.linear(x)
 
-        return self.propagate(self.aggr, edge_index, x=x, edge_attr=edge_embeddings, norm = norm)
+        if _TORCH_GEOMETRIC_VERSION == '1.0.3':
+            return self.propagate(self.aggr, edge_index, x=x, edge_attr=edge_embeddings, norm = norm)
+        else:
+            # assume bigger version
+            return self.propagate(edge_index[0], x=x, edge_attr=edge_embeddings, norm = norm)
 
     def message(self, x_j, edge_attr, norm):
         return norm.view(-1, 1) * (x_j + edge_attr)
@@ -145,7 +154,11 @@ class GATConv(MessagePassing):
         edge_embeddings = self.edge_embedding1(edge_attr[:,0]) + self.edge_embedding2(edge_attr[:,1])
 
         x = self.weight_linear(x).view(-1, self.heads, self.emb_dim)
-        return self.propagate(self.aggr, edge_index, x=x, edge_attr=edge_embeddings)
+        if _TORCH_GEOMETRIC_VERSION == '1.0.3':
+            return self.propagate(self.aggr, edge_index, x=x, edge_attr=edge_embeddings)
+        else:
+            # assume bigger version
+            return self.propagate(edge_index[0], x=x, edge_attr=edge_embeddings)
 
     def message(self, edge_index, x_i, x_j, edge_attr):
         edge_attr = edge_attr.view(-1, self.heads, self.emb_dim)
@@ -193,7 +206,11 @@ class GraphSAGEConv(MessagePassing):
 
         x = self.linear(x)
 
-        return self.propagate(self.aggr, edge_index, x=x, edge_attr=edge_embeddings)
+        if _TORCH_GEOMETRIC_VERSION == '1.0.3':
+            return self.propagate(self.aggr, edge_index, x=x, edge_attr=edge_embeddings)
+        else:
+            # assume bigger version
+            return self.propagate(edge_index[0], x=x, edge_attr=edge_embeddings)
 
     def message(self, x_j, edge_attr):
         return x_j + edge_attr
