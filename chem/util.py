@@ -93,6 +93,8 @@ class ExtractSubstructureContextPair:
         data.edge_index_context
         data.overlap_context_substruct_idx
         """
+        data = data.clone()
+
         num_atoms = data.x.size()[0]
         if root_idx == None:
             root_idx = random.sample(range(num_atoms), 1)[0]
@@ -221,6 +223,8 @@ class MaskAtom:
         data.mask_edge_idx
         data.mask_edge_label
         """
+
+        data = data.clone()
 
         if masked_atom_indices == None:
             # sample x distinct atoms to be masked, based on mask rate. But
