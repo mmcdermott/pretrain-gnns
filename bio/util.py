@@ -71,6 +71,8 @@ class MaskEdge:
         both directions) that correspond to the masked edges have the masked
         edge feature
         """
+        data = data.clone()
+
         if masked_edge_indices == None:
             # sample x distinct edges to be masked, based on mask rate. But
             # will sample at least 1 edge
