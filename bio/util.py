@@ -71,7 +71,8 @@ class MaskEdge:
         both directions) that correspond to the masked edges have the masked
         edge feature
         """
-        data = data.clone()
+        if not hasattr(data, 'orig_edge_attr'): data.orig_edge_attr = data.edge_attr.clone()
+        else: data.edge_attr = data.orig_edge_attr.clone()
 
         if masked_edge_indices == None:
             # sample x distinct edges to be masked, based on mask rate. But
@@ -89,7 +90,7 @@ class MaskEdge:
         # the masked indices
         mask_edge_labels_list = []
         for idx in masked_edge_indices:
-            mask_edge_labels_list.append(data.edge_attr[idx].view(1, -1))
+            mask_edge_labels_list.append(data.orig_edge_attr[idx].view(1, -1))
         data.mask_edge_label = torch.cat(mask_edge_labels_list, dim=0)
 
         # created new masked edge_attr, where both directions of the masked
